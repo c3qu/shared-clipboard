@@ -30,6 +30,10 @@ header {
     gap: 12px;
 }
 
+header h1 {
+    margin-right: auto;
+}
+
 h1 {
     font-size: 24px;
     color: #333;
@@ -359,4 +363,24 @@ main {
     margin-top: 16px;
     font-size: 14px;
     display: none;
+}
+
+.lang-toggle {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.lang-toggle:hover {
+    background: #5a6268;
+    transform: translateY(-1px);
+}
+
+.login-box .lang-toggle {
+    margin-top: 16px;
 }

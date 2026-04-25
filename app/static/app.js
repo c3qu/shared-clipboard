@@ -6,11 +6,27 @@ const contentInput = document.getElementById('contentInput');
 const fileInput = document.getElementById('fileInput');
 const uploadProgress = document.getElementById('uploadProgress');
 const toast = document.getElementById('toast');
+const langToggle = document.getElementById('langToggle');
 
 let items = [];
 
+function applyTranslations() {
+    document.documentElement.lang = currentLang === 'zh' ? 'zh-CN' : 'en';
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        el.textContent = t(el.getAttribute('data-i18n'));
+    });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        el.placeholder = t(el.getAttribute('data-i18n-placeholder'));
+    });
+    document.querySelectorAll('[data-i18n-title]').forEach(el => {
+        el.title = t(el.getAttribute('data-i18n-title'));
+    });
+    document.title = t('appTitle');
+    langToggle.textContent = currentLang === 'zh' ? 'EN' : '中文';
+}
+
 async function clearAll() {
-    if (!confirm('确定要清空所有内容吗？此操作不可恢复！')) {
+    if (!confirm(t('confirmClearAll'))) {
         return;
     }
     try {
@@ -21,7 +37,7 @@ async function clearAll() {
         }
         if (res.ok) {
             fetchItems();
-            showToast('已清空所有内容');
+            showToast(t('clearedAll'));
         }
     } catch (err) {
         console.error('Failed to clear items:', err);
@@ -60,7 +76,7 @@ async function addItem(content) {
         }
         if (res.ok) {
             fetchItems();
-            showToast('内容已添加');
+            showToast(t('contentAdded'));
         }
     } catch (err) {
         console.error('Failed to add item:', err);
@@ -72,8 +88,6 @@ async function uploadFile(file) {
     formData.append('file', file);
 
     uploadProgress.style.display = 'block';
-    const progressFill = uploadProgress.querySelector('.progress-fill');
-    const progressText = uploadProgress.querySelector('.progress-text');
 
     try {
         const res = await fetch('/api/upload', {
@@ -88,14 +102,14 @@ async function uploadFile(file) {
 
         if (res.ok) {
             fetchItems();
-            showToast('文件上传成功');
+            showToast(t('uploadSuccess'));
         } else {
             const data = await res.json();
-            showToast(data.detail || '上传失败');
+            showToast(data.detail || t('uploadFailed'));
         }
     } catch (err) {
         console.error('Failed to upload file:', err);
-        showToast('上传失败');
+        showToast(t('uploadFailed'));
     } finally {
         uploadProgress.style.display = 'none';
         fileInput.value = '';
@@ -118,7 +132,7 @@ async function downloadFile(itemId, filename) {
         a.click();
         document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
-        showToast('开始下载');
+        showToast(t('downloadStart'));
     } catch (err) {
         console.error('Failed to download file:', err);
     }
@@ -130,7 +144,7 @@ function submitFromInput() {
         addItem(content);
         contentInput.value = '';
     } else {
-        showToast('请输入内容');
+        showToast(t('pleaseInputContent'));
     }
 }
 
@@ -155,7 +169,7 @@ async function deleteItem(itemId, event) {
 async function copyToClipboard(content) {
     try {
         await navigator.clipboard.writeText(content);
-        showToast('已复制到剪贴板');
+        showToast(t('copied'));
     } catch (err) {
         const textarea = document.createElement('textarea');
         textarea.value = content;
@@ -163,7 +177,7 @@ async function copyToClipboard(content) {
         textarea.select();
         document.execCommand('copy');
         document.body.removeChild(textarea);
-        showToast('已复制到剪贴板');
+        showToast(t('copied'));
     }
 }
 
@@ -171,22 +185,6 @@ function showToast(message) {
     toast.textContent = message;
     toast.classList.add('show');
     setTimeout(() => toast.classList.remove('show'), 2000);
-}
-
-function formatTime(isoString) {
-    const date = new Date(isoString);
-    const now = new Date();
-    const diff = now - date;
-
-    if (diff < 60000) return '刚刚';
-    if (diff < 3600000) return `${Math.floor(diff / 60000)} 分钟前`;
-    if (diff < 86400000) return `${Math.floor(diff / 3600000)} 小时前`;
-    return date.toLocaleDateString('zh-CN', {
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-    });
 }
 
 function formatFileSize(bytes) {
@@ -213,8 +211,8 @@ function renderItems() {
     if (items.length === 0) {
         itemsList.innerHTML = `
             <div class="empty-state">
-                <h2>📋 暂无内容</h2>
-                <p>在输入框中输入内容，或上传文件</p>
+                <h2>${t('noContent')}</h2>
+                <p>${t('noContentHint')}</p>
             </div>
         `;
         return;
@@ -259,12 +257,12 @@ pasteBtn.addEventListener('click', async () => {
         if (text.trim()) {
             contentInput.value = text;
             contentInput.focus();
-            showToast('已粘贴到输入框');
+            showToast(t('pastedToInput'));
         } else {
-            showToast('剪贴板为空');
+            showToast(t('clipboardEmpty'));
         }
     } catch (err) {
-        showToast('无法读取剪贴板，请按 Ctrl+V');
+        showToast(t('cannotReadClipboard'));
     }
 });
 
@@ -278,6 +276,11 @@ fileInput.addEventListener('change', (e) => {
 submitBtn.addEventListener('click', submitFromInput);
 clearBtn.addEventListener('click', clearAll);
 
+langToggle.addEventListener('click', () => {
+    toggleLanguage();
+    applyTranslations();
+});
+
 contentInput.addEventListener('keydown', (e) => {
     if (e.ctrlKey && e.key === 'Enter') {
         e.preventDefault();
@@ -288,13 +291,11 @@ contentInput.addEventListener('keydown', (e) => {
 document.addEventListener('paste', async (e) => {
     if (e.target !== contentInput) {
         e.preventDefault();
-        // 先检查是否有文件
         const files = e.clipboardData.files;
         if (files.length > 0) {
             uploadFile(files[0]);
             return;
         }
-        // 否则作为文本处理
         const text = e.clipboardData.getData('text');
         if (text.trim()) {
             addItem(text);
@@ -302,5 +303,6 @@ document.addEventListener('paste', async (e) => {
     }
 });
 
+applyTranslations();
 fetchItems();
 setInterval(fetchItems, 5000);

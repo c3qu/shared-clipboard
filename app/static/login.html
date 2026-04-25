@@ -3,21 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>登录 - 共享剪贴板</title>
+    <title data-i18n="loginTitle">登录 - 共享剪贴板</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
     <div class="login-container">
         <div class="login-box">
-            <h1>🔐 共享剪贴板</h1>
-            <p class="login-desc">请输入访问密码</p>
+            <h1>🔐 <span data-i18n="appTitle">共享剪贴板</span></h1>
+            <p class="login-desc" data-i18n="loginPasswordLabel">请输入访问密码</p>
             <form id="loginForm">
-                <input type="password" id="passwordInput" placeholder="请输入密码" autocomplete="current-password">
-                <button type="submit" class="btn-primary">登录</button>
+                <input type="password" id="passwordInput" data-i18n-placeholder="loginPasswordPlaceholder" placeholder="请输入密码" autocomplete="current-password">
+                <button type="submit" class="btn-primary" data-i18n="loginButton">登录</button>
             </form>
             <div id="errorMsg" class="error-msg"></div>
+            <button id="langToggle" class="lang-toggle">EN / 中文</button>
         </div>
     </div>
+    <script src="/static/i18n.js"></script>
     <script src="/static/login.js"></script>
 </body>
 </html>
