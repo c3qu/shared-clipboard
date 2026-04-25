@@ -1,0 +1,11 @@
+services:
+  clipboard:
+    build: .
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - ACCESS_PASSWORD=123456
+      - MAX_FILE_SIZE=52428800
+    restart: unless-stopped

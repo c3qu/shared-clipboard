@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>共享剪贴板</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>共享剪贴板</h1>
+            <button id="clearBtn" class="btn-danger">🗑️ 清空全部</button>
+        </header>
+        <div class="input-section">
+            <textarea id="contentInput" placeholder="在此输入或粘贴内容，按 Ctrl+Enter 提交..." rows="3"></textarea>
+            <div class="input-actions">
+                <button id="pasteBtn" class="btn-secondary">📋 从剪贴板粘贴</button>
+                <label class="btn-secondary file-label">
+                    📎 上传文件
+                    <input type="file" id="fileInput" style="display: none">
+                </label>
+                <button id="submitBtn" class="btn-primary">添加</button>
+            </div>
+            <div id="uploadProgress" class="upload-progress" style="display: none">
+                <div class="progress-bar">
+                    <div class="progress-fill"></div>
+                </div>
+                <span class="progress-text">上传中...</span>
+            </div>
+        </div>
+        <main>
+            <div id="itemsList" class="items-list">
+                <div class="loading">加载中...</div>
+            </div>
+        </main>
+        <div id="toast" class="toast">已复制到剪贴板</div>
+    </div>
+    <script src="/static/app.js"></script>
+</body>
+</html>
