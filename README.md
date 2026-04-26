@@ -1,26 +1,30 @@
-# 共享剪贴板
+<!-- language -->
 
-一个简单的在线共享剪贴板应用，支持多人共享文本内容。
+[English](README.md) | [简体中文](README_zh-CN.md)
 
-## 功能特性
+# Shared Clipboard
 
-- 🔐 **密码保护** - 访问需要密码验证
-- 📄 **文件共享** - 支持上传和下载文件，带文件图标显示
-- 📋 **点击复制** - 点击任意内容行即可复制到剪贴板
-- ⌨️ **快捷键支持** - 按 `Ctrl+V` 直接粘贴文本或文件
-- 🔄 **实时同步** - 自动刷新显示最新内容
-- 💾 **数据持久化** - 数据和文件都保存到磁盘
-- 🐳 **Docker部署** - 支持一键Docker部署
+A simple online shared clipboard application that supports multi-user text content sharing.
 
-## 本地运行
+## Features
 
-### 方式1: Python虚拟环境运行
+- 🔐 **Password Protection** - Access requires password authentication
+- 📄 **File Sharing** - Support uploading and downloading files with file icons
+- 📋 **Click to Copy** - Click any content line to copy to clipboard
+- ⌨️ **Shortcut Support** - Press `Ctrl+V` to directly paste text or files
+- 🔄 **Real-time Sync** - Automatically refresh to display latest content
+- 💾 **Data Persistence** - Both data and files are saved to disk
+- 🐳 **Docker Deployment** - Support one-click Docker deployment
+
+## Local Run
+
+### Method 1: Python Virtual Environment
 
 ```bash
-# 创建虚拟环境
+# Create virtual environment
 python -m venv venv
 
-# 激活虚拟环境
+# Activate virtual environment
 # Windows (Git Bash):
 source venv/Scripts/activate
 # Windows (CMD):
@@ -28,67 +32,67 @@ venv\Scripts\activate.bat
 # Linux/Mac:
 source venv/bin/activate
 
-# 安装依赖
+# Install dependencies
 pip install -r requirements.txt
 
-# 设置密码（可选，默认是 123456）
+# Set password (optional, default is 123456)
 # Windows (Git Bash):
 export ACCESS_PASSWORD=yourpassword
 # Linux/Mac:
 export ACCESS_PASSWORD=yourpassword
 
-# 设置最大文件大小（可选，默认50MB，单位字节）
+# Set max file size (optional, default 50MB, in bytes)
 export MAX_FILE_SIZE=52428800
 
-# 启动服务
+# Start server
 uvicorn app.main:app --host 0.0.0.0 --port 8080 --reload
 ```
 
-默认访问密码: `123456`
-访问: http://localhost:8080
+Default access password: `123456`
+Access: http://localhost:8080
 
-### 方式2: Docker运行
+### Method 2: Docker
 
 ```bash
-# 构建并启动
+# Build and start
 docker compose up -d
 
-# 查看日志
+# View logs
 docker compose logs -f
 
-# 停止
+# Stop
 docker compose down
 ```
 
-访问: http://localhost:8080
+Access: http://localhost:8080
 
-## API接口
+## API Endpoints
 
-| 方法 | 路径 | 说明 |
-|------|------|------|
-| GET | `/api/items` | 获取所有剪贴板内容 |
-| POST | `/api/items` | 添加新内容 (JSON: {"content": "..."}) |
-| DELETE | `/api/items/{id}` | 删除指定内容 |
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/api/items` | Get all clipboard content |
+| POST | `/api/items` | Add new content (JSON: {"content": "..."}) |
+| DELETE | `/api/items/{id}` | Delete specific content |
 
-## 项目结构
+## Project Structure
 
 ```
 jianqieban/
 ├── app/
-│   ├── main.py          # FastAPI主程序
-│   ├── storage.py       # 数据存储逻辑
+│   ├── main.py          # FastAPI main program
+│   ├── storage.py       # Data storage logic
 │   └── static/
-│       ├── index.html   # 前端页面
-│       ├── style.css    # 样式文件
-│       └── app.js       # 前端交互逻辑
-├── data/                # 数据持久化目录 (自动创建)
-├── Dockerfile           # Docker镜像配置
-├── docker-compose.yml   # Docker Compose配置
-└── requirements.txt     # Python依赖
+│       ├── index.html   # Frontend page
+│       ├── style.css    # Stylesheet
+│       └── app.js       # Frontend interaction logic
+├── data/                # Data persistence directory (auto-created)
+├── Dockerfile           # Docker image configuration
+├── docker-compose.yml   # Docker Compose configuration
+└── requirements.txt     # Python dependencies
 ```
 
-## 使用说明
+## Usage
 
-1. **添加内容**: 点击"粘贴新内容"按钮，或直接按 `Ctrl+V`
-2. **复制内容**: 点击任意一行内容，自动复制到剪贴板
-3. **删除内容**: 鼠标悬停在内容上，点击右侧的 × 按钮
+1. **Add Content**: Click "Paste new content" button, or directly press `Ctrl+V`
+2. **Copy Content**: Click any content line to automatically copy to clipboard
+3. **Delete Content**: Hover over content, click the × button on the right

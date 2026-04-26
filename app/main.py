@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Depends, Cookie, Response, Request, File, UploadFile
+from fastapi import FastAPI, HTTPException, Depends, Cookie, Response, Request, File, UploadFile, WebSocket, WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, RedirectResponse
 from pydantic import BaseModel
@@ -93,6 +93,10 @@ def clear_items():
     count = storage.clear()
     return {"success": True, "count": count}
 
+
+@app.websocket("/clipsocket")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.close()
 
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
