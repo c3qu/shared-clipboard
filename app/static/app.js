@@ -9,6 +9,32 @@ const toast = document.getElementById('toast');
 const langToggle = document.getElementById('langToggle');
 
 let items = [];
+let ws = null;
+let wsReconnectTimer = null;
+
+function connectWebSocket() {
+    const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+    ws = new WebSocket(`${protocol}//${location.host}/clipsocket`);
+
+    ws.onmessage = (event) => {
+        try {
+            const data = JSON.parse(event.data);
+            if (data.type === 'update') {
+                fetchItems();
+            }
+        } catch (e) {
+            console.error('Failed to parse WebSocket message:', e);
+        }
+    };
+
+    ws.onclose = () => {
+        wsReconnectTimer = setTimeout(connectWebSocket, 3000);
+    };
+
+    ws.onerror = () => {
+        ws.close();
+    };
+}
 
 function applyTranslations() {
     document.documentElement.lang = currentLang === 'zh' ? 'zh-CN' : 'en';
@@ -305,4 +331,4 @@ document.addEventListener('paste', async (e) => {
 
 applyTranslations();
 fetchItems();
-setInterval(fetchItems, 5000);
+connectWebSocket();

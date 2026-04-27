@@ -15,6 +15,31 @@ MAX_FILE_SIZE = int(os.getenv("MAX_FILE_SIZE", 50 * 1024 * 1024))  # 默认50MB
 sessions = set()
 
 
+class ConnectionManager:
+    def __init__(self):
+        self.active_connections: set = set()
+
+    async def connect(self, websocket: WebSocket):
+        await websocket.accept()
+        self.active_connections.add(websocket)
+
+    def disconnect(self, websocket: WebSocket):
+        self.active_connections.discard(websocket)
+
+    async def broadcast(self, message: dict):
+        dead = []
+        for connection in self.active_connections:
+            try:
+                await connection.send_json(message)
+            except Exception:
+                dead.append(connection)
+        for conn in dead:
+            self.active_connections.discard(conn)
+
+
+manager = ConnectionManager()
+
+
 class ClipboardItem(BaseModel):
     content: str
 
@@ -46,10 +71,12 @@ def get_items():
 
 
 @app.post("/api/items", dependencies=[Depends(verify_auth)])
-def add_item(item: ClipboardItem):
+async def add_item(item: ClipboardItem):
     if not item.content.strip():
         raise HTTPException(status_code=400, detail="Content cannot be empty")
-    return storage.add_text(item.content.strip())
+    result = storage.add_text(item.content.strip())
+    await manager.broadcast({"type": "update"})
+    return result
 
 
 @app.post("/api/upload", dependencies=[Depends(verify_auth)])
@@ -65,7 +92,9 @@ async def upload_file(file: UploadFile = File(...)):
         f.write(content)
 
     file_size = len(content)
-    return storage.add_file(file.filename or "unknown", file_size, file_id)
+    result = storage.add_file(file.filename or "unknown", file_size, file_id)
+    await manager.broadcast({"type": "update"})
+    return result
 
 
 @app.get("/api/download/{item_id}", dependencies=[Depends(verify_auth)])
@@ -82,21 +111,28 @@ async def download_file(item_id: str):
 
 
 @app.delete("/api/items/{item_id}", dependencies=[Depends(verify_auth)])
-def delete_item(item_id: str):
+async def delete_item(item_id: str):
     if not storage.delete(item_id):
         raise HTTPException(status_code=404, detail="Item not found")
+    await manager.broadcast({"type": "update"})
     return {"success": True}
 
 
 @app.delete("/api/items", dependencies=[Depends(verify_auth)])
-def clear_items():
+async def clear_items():
     count = storage.clear()
+    await manager.broadcast({"type": "update"})
     return {"success": True, "count": count}
 
 
 @app.websocket("/clipsocket")
 async def websocket_endpoint(websocket: WebSocket):
-    await websocket.close()
+    await manager.connect(websocket)
+    try:
+        while True:
+            await websocket.receive_text()
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
 
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
