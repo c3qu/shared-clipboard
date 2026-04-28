@@ -141,5 +141,8 @@ app.mount("/static", StaticFiles(directory="app/static"), name="static")
 async def read_root(request: Request):
     session_id = request.cookies.get("session_id")
     if session_id and session_id in sessions:
-        return FileResponse("app/static/index.html")
-    return FileResponse("app/static/login.html")
+        response = FileResponse("app/static/index.html")
+    else:
+        response = FileResponse("app/static/login.html")
+    response.headers["Cache-Control"] = "no-store"
+    return response
