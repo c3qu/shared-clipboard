@@ -1,6 +1,6 @@
 import json
 import os
-from datetime import datetime
+from datetime import datetime,timezone
 from typing import List, Dict, Optional
 import uuid
 
@@ -38,7 +38,7 @@ class Storage:
             "id": str(uuid.uuid4()),
             "type": "text",
             "content": content,
-            "created_at": datetime.now().isoformat()
+            "created_at": datetime.now(timezone.utc).isoformat()
         }
         self._items.insert(0, item)
         self._save()
@@ -51,7 +51,7 @@ class Storage:
             "filename": filename,
             "size": size,
             "file_id": file_id,
-            "created_at": datetime.now().isoformat()
+            "created_at": datetime.now(timezone.utc).isoformat()
         }
         self._items.insert(0, item)
         self._save()
