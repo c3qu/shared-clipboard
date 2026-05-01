@@ -207,6 +207,13 @@ async function copyToClipboard(content) {
     }
 }
 
+function copyItemById(itemId) {
+    const item = items.find(i => i.id === itemId);
+    if (item && item.type === 'text') {
+        copyToClipboard(item.content);
+    }
+}
+
 function showToast(message) {
     toast.textContent = message;
     toast.classList.add('show');
@@ -247,7 +254,7 @@ function renderItems() {
     itemsList.innerHTML = items.map(item => {
         if (item.type === 'file') {
             return `
-                <div class="item" onclick="downloadFile('${item.id}', '${escapeHtml(item.filename)}')">
+                <div class="item file-item" onclick="downloadFile('${item.id}', '${escapeHtml(item.filename)}')">
                     <button class="delete-btn" onclick="deleteItem('${item.id}', event)">×</button>
                     <div class="item-file">
                         <span class="file-icon">${getFileIcon(item.filename)}</span>
@@ -261,9 +268,9 @@ function renderItems() {
             `;
         } else {
             return `
-                <div class="item" onclick="copyToClipboard(this.dataset.content)" data-content="${escapeHtml(item.content)}">
+                <div class="item" onclick="copyItemById('${item.id}')">
                     <button class="delete-btn" onclick="deleteItem('${item.id}', event)">×</button>
-                    ${escapeHtml(item.content)}
+                    <div class="item-text">${escapeHtml(item.content)}</div>
                     <span class="item-time">${formatTime(item.created_at)}</span>
                 </div>
             `;
